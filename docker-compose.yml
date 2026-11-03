@@ -1,0 +1,41 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: teampulse-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - teampulse
+
+  backend:
+    build: ./backend
+    container_name: teampulse-backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      MONGODB_URI: mongodb://mongodb:27017/teampulse
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    networks:
+      - teampulse
+
+  frontend:
+    build: ./frontend
+    container_name: teampulse-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - teampulse
+
+volumes:
+  mongodb_data:
+
+networks:
+  teampulse:
+    driver: bridge
